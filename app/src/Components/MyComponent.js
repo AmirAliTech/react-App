@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../App.css";
 import MyDeleteComponent from "./MyDeleteComponent";
 import SideComponent from "./SideComponent";
@@ -9,6 +9,7 @@ const MyComponent = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [shouldUpdate, setShouldUpdate] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,6 +30,10 @@ const MyComponent = () => {
         }
         const result = await response.json();
         setData(result);
+        const expirationTime = 60 * 60000;
+        setTimeout(() => {
+          localStorage.removeItem("token");
+        }, expirationTime);
       } catch (error) {
         console.error("Error:", error.message);
         setError("Internal Server Error");
@@ -57,30 +62,33 @@ const MyComponent = () => {
             ) : (
               <ul>
                 {data.map((item) => (
-                  <li key={item._id} className="list">
+                  <li key={item._id} className="list d-flex flex-column">
                     <p>
-                      <strong>Name:</strong> {item.name}, <strong>Age:</strong>
-                      {item.age}, <strong>Email:</strong> {item.email},<br/>
-                      <strong>Message:</strong> <br/> <div dangerouslySetInnerHTML={{ __html: item.message }}></div>,
+                      <strong>Title:</strong> {item.title} <hr /> <strong>Description:</strong>
+                      {item.desc} <hr/> <strong>Email:</strong> {item.email}<hr/>
+                      <strong>Content:</strong> <hr/> <div dangerouslySetInnerHTML={{ __html: item.content }}></div> <hr className=""/>
                       <strong>Date:</strong> {item.date}
                     </p>
+                    <hr/>
                     <img
                       src={`http://localhost:3001/${item.nfile}`}
                       alt="img"
                       className="cimage"
                     />
-                    <div className="updateDelete">
+                    <hr/>
+                    <div className="updateDelete d-flex justify-content-start w-100 ">
                       <MyDeleteComponent
                         itemId={item._id}
                         onUpdate={handleUpdate} 
                       />
                       <Link
                         to={`/update/${item._id}`}
-                        className="updatebtn1"
+                        className="updatebtn1 btn btn-primary text-nowrap "
                       >
                         Update
                       </Link>
                     </div>
+                    <hr/>
                   </li>
                 ))}
               </ul>
@@ -88,7 +96,7 @@ const MyComponent = () => {
           </div>
         </>
       ) : (
-        <p>401 forbidden</p>
+        navigate('/login')
       )}
     </>
   );

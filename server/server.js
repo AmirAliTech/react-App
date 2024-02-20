@@ -30,7 +30,7 @@ app.use(
 app.use("/uploads", express.static("uploads"));
 
 const generateToken = (userId) => {
-  var secretKey = "yourSecretKey"; // Replace with a secure secret key
+  var secretKey = "yourSecretKey";
   const token = jwt.sign({ userId }, secretKey, { expiresIn: "1h" });
   return token;
 };
@@ -69,10 +69,10 @@ mongoose
   });
 
 const personSchema = mongoose.Schema({
-  name: String,
-  age: Number,
+  title: String,
+  desc: String,
   email: String,
-  message: String,
+  content: String,
   nfile: String,
   date: { type: Date, default: Date.now },
 });
@@ -80,10 +80,8 @@ const personSchema = mongoose.Schema({
 const PersonModel = mongoose.model("Person", personSchema);
 
 const signinSchema = mongoose.Schema({
-  name: String,
-  age: Number,
   email: String,
-  message: String,
+  password: String,
   date: { type: Date, default: Date.now },
 });
 
@@ -92,10 +90,10 @@ const SigninModel = mongoose.model("Signin", signinSchema);
 app.post("/enterdata", upload.single("nfile"), async (req, res) => {
   try {
     const data = new PersonModel({
-      name: req.body.name,
-      age: req.body.age,
+      title: req.body.title,
+      desc: req.body.desc,
       email: req.body.email,
-      message: req.body.message,
+      content: req.body.content,
       nfile: req.file.path,
     });
     await data.save();
@@ -146,7 +144,7 @@ app.delete("/itemremove/:id", async (req, res) => {
   }
 });
 
-app.put("/updatedata/:id", verifyTokenMiddleware, upload.single("nfile"), async (req, res) => {
+app.put("/updatedata/:id", upload.single("nfile"), async (req, res) => {
   try {
     let updateData;
 
@@ -193,16 +191,23 @@ app.put("/updatedata/:id", verifyTokenMiddleware, upload.single("nfile"), async 
 
 app.post("/signin", async (req, res) => {
   try {
-    const data = new SigninModel(req.body);
-    await data.save();
-    const userId = "world123";
-    const token = generateToken(userId);
-    res.status(201).json({ message: "Data saved successfully", token });
+    const { email, password } = req.body;
+    const user = await SigninModel.findOne({ email, password });
+
+    if (user) {
+      const userId = "world123";
+      const token = generateToken(userId);
+      res.status(201).json({ message: "Data saved successfully", token });
+    } else {
+      res.status(404).json({ message: "Invalid credentials" }); 
+    }
   } catch (error) {
     console.error("Error saving data:", error.message);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+
 
 app.get("/gettoken", verifyTokenMiddleware, async (req, res) => {
   try {

@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
+import JoditEditor from "jodit-react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 const UpdateDataComponent = () => {
+  const editor = useRef(null);
   const { uid } = useParams();
-  const [name, setName] = useState("");
-  const [age, setAge] = useState(0);
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const [content, setContent] = useState("");
   const [updateStatus, setUpdateStatus] = useState(null);
   const [file, setFile] = useState(null);
   const navigate = useNavigate();
@@ -25,10 +27,10 @@ const UpdateDataComponent = () => {
         if (response.ok) {
           const data = await response.json();
 
-          setName(data.name);
-          setAge(data.age);
+          setTitle(data.title);
+          setDesc(data.desc);
           setEmail(data.email);
-          setMessage(data.message);
+          setContent(data.content);
           setFile(data.nfile);
         } else {
         }
@@ -43,10 +45,10 @@ const UpdateDataComponent = () => {
   const handleUpdate = async () => {
     try {
       const formData = new FormData();
-      formData.append("name", name);
-      formData.append("age", age);
+      formData.append("title", title);
+      formData.append("desc", desc);
       formData.append("email", email);
-      formData.append("message", message);
+      formData.append("content", content);
       if (file) {
         formData.append("nfile", file);
       }
@@ -58,7 +60,6 @@ const UpdateDataComponent = () => {
 
       if (response.ok) {
         setUpdateStatus("Data updated successfully");
-        const token = localStorage.getItem("token");
         const expirationTime = 60 * 10000;
         setTimeout(() => {
           localStorage.removeItem("token");
@@ -80,16 +81,16 @@ const UpdateDataComponent = () => {
 
     switch (name) {
       case "name":
-        setName(value);
+        setTitle(value);
         break;
-      case "age":
-        setAge(Number(value));
+      case "desc":
+        setDesc(value);
         break;
       case "email":
         setEmail(value);
         break;
       case "message":
-        setMessage(value);
+        setContent(value);
         break;
       default:
         break;
@@ -110,18 +111,18 @@ const UpdateDataComponent = () => {
             Name:
             <input
               type="text"
-              name="name"
-              value={name}
+              name="title"
+              value={title}
               onChange={handleChange}
             />
           </label>
           <br />
           <label>
-            Age:
+            Description:
             <input
-              type="number"
-              name="age"
-              value={age}
+              type="text"
+              name="desc"
+              value={desc}
               onChange={handleChange}
             />
           </label>
@@ -137,14 +138,14 @@ const UpdateDataComponent = () => {
           </label>
           <br />
           <label>
-            Message:
-            <textarea
-              cols="30"
-              rows="10"
-              name="message"
-              value={message}
-              onChange={handleChange}
-            ></textarea>
+            Content:
+            <JoditEditor
+              ref={editor}
+              value={content}
+              tabIndex={1}
+              onBlur={(newContent) => setContent(newContent)}
+              onChange={(newContent) => setContent(newContent)}
+            />
           </label>
           <br />
           <div className="d-flex justify-content-center align-items-center">
@@ -154,9 +155,12 @@ const UpdateDataComponent = () => {
               onChange={handleFileChange}
               className="updatefile"
             />
+            <img src={`http://localhost:3001/${file}`}
+              alt="img"
+              className="cimage" />
           </div>
           <br />
-          <button onClick={handleUpdate} className="btn">
+          <button onClick={handleUpdate} className="btn btn-primary ">
             Update Data
           </button>
           {updateStatus && <p>{updateStatus}</p>}

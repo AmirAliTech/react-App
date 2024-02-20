@@ -2,7 +2,10 @@ import React from 'react'
 
 const PageNot = () => {
   return (
-    <h1>PageNot</h1>
+    <div className='form flex-column '>
+      <h1>404</h1>
+      <h1>Page Not Found</h1>
+    </div>
   )
 }
 

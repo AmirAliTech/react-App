@@ -2,17 +2,27 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
 import SideComponent from "./SideComponent";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SignInComponent = () => {
   const [signinData, setSigninData] = useState({
-    name: "",
-    age: 0,
     email: "",
-    message: "",
+    password: "",
   });
 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const handleReset = () => {
+    if (window.confirm('Are you sure you want to reset the data?')) {
+      setSigninData({
+        email: "",
+        password: "",
+      });
+      toast.success('Data Reset Successfully');
+    }
+  };
 
   const handleChange = (e) => {
     setSigninData({
@@ -38,39 +48,21 @@ const SignInComponent = () => {
       if (response.ok) {
         const responseData = await response.json();
         const token = responseData.token;
+
         if (token) {
-          console.log(token);
           localStorage.setItem("token", token);
-          const authtoken = localStorage.getItem("token");
-          console.log(authtoken);
-
-          const authHeaders = {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          };
-
-          const getDataResponse = await fetch(`http://localhost:3001/gettoken`, {
-            method: "GET",
-            headers: authHeaders,
-          });
-
-          if (getDataResponse.ok) {
-            const dataResponse = await getDataResponse.json();
-            console.log("Data from server:", dataResponse);
-            const expirationTime = 60 * 10000;
-            const timerId = setTimeout(() => {
-              localStorage.removeItem("token");
-            }, expirationTime);
-            navigate("/find");
-          } else {
-            console.error("Failed to get data");
-          }
+          navigate('/find');
+          toast.success('Login Successfully')
+          
         }
       } else {
-        console.error("Failed to save data");
+        const errorData = await response.json(); 
+        console.error("Failed to login:", errorData.message);
+        toast.error(errorData.message || "Invalid email or password");
       }
     } catch (error) {
       console.error("Error:", error.message);
+      toast.error("An error occurred while logging in");
     } finally {
       setLoading(false);
     }
@@ -81,52 +73,34 @@ const SignInComponent = () => {
       <SideComponent />
       <div className="form">
         <form onSubmit={handleSubmit}>
-          <label htmlFor="name">Name:</label>
-          <br />
-          <input
-            type="text"
-            id="name"
-            name="name"
-            onChange={handleChange}
-            value={signinData.name}
-            required
-          />
-          <br />
-          <label htmlFor="age">Age:</label>
-          <br />
-          <input
-            type="number"
-            id="age"
-            name="age"
-            onChange={handleChange}
-            value={signinData.age}
-            required
-          />
-          <br />
           <label htmlFor="email">Email:</label>
           <br />
           <input
             type="email"
             id="email"
             name="email"
+            className="form-control border border-1"
             onChange={handleChange}
             value={signinData.email}
             required
           />
           <br />
-          <label htmlFor="message">Message:</label>
+          <label htmlFor="password">Password:</label>
           <br />
-          <textarea
-            cols="30"
-            rows="10"
-            id="message"
-            name="message"
+          <input
+            type="password"
+            id="password"
+            name="password"
+            className="form-control border border-1"
             onChange={handleChange}
-            value={signinData.message}
-          ></textarea>
+            value={signinData.password}
+          />
           <br />
-          <button type="submit" className="btn" disabled={loading}>
+          <button type="submit" className="btn btn-primary my-2" disabled={loading}>
             {loading ? "Submitting..." : "Submit"}
+          </button>
+          <button type="button" className="btn btn-danger mx-2" onClick={handleReset}>
+            Reset
           </button>
         </form>
       </div>

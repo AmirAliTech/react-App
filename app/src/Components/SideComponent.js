@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link} from "react-router-dom";
 import "../App.css";
 
 const SideComponent = () => {
@@ -32,9 +32,9 @@ const SideComponent = () => {
             aria-label="Close"
           ></button>
         </div>
-        <div className="offcanvas-body flex-column d-flex w-50 ">
-          <Link to="/">Add Data</Link>
-          <Link to="/find">See and Modify Data</Link>
+        <div className="offcanvas-body flex-column d-flex ">
+          <Link to="/" className="btn btn-primary my-1 py-1">Add Data</Link>
+          <Link to="/find" className="btn btn-primary my-1 py-1">See and Modify Data</Link>
         </div>
       </div>
     </div>

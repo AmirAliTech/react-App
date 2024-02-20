@@ -7,21 +7,20 @@ import UpdateDataComponent from "./Components/UpdateDataComponent";
 import SignInComponent from "./Components/SignInComponent";
 import PageNot from "./Components/PageNot";
 import BlogPage from "./Components/BlogPage";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => (
   <div className="app">
     <BrowserRouter>
+      <ToastContainer />
       <Routes>
-        <Route exact path="/" element={<MyForm />}></Route>
-        <Route exact path="/find" element={<MyComponent />}></Route>
-        <Route
-          exact
-          path="/update/:uid"
-          element={<UpdateDataComponent />}
-        ></Route>
-        <Route exact path="/signin" element={<SignInComponent />}></Route>
-        <Route exact path="*" element={<PageNot />}></Route>
-        <Route exact path="blogpage" element={<BlogPage />}></Route>
+        <Route exact path="/" element={<MyForm />} />
+        <Route exact path="/find" element={<MyComponent />} />
+        <Route exact path="/update/:uid" element={<UpdateDataComponent />} />
+        <Route exact path="/login" element={<SignInComponent />} />
+        <Route exact path="/blogpage" element={<BlogPage />} />
+        <Route exact path="*" element={<PageNot />} />
       </Routes>
     </BrowserRouter>
   </div>
